@@ -20,10 +20,13 @@ public class CinemachinePlayerController : MonoBehaviour
     [SerializeField] private float checkRadius = 0.3f;
     [SerializeField] private Transform groundCheck;
 
+    Animator animator;
+
     void Start()
     {
         RB = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -32,6 +35,8 @@ public class CinemachinePlayerController : MonoBehaviour
         PlayerMovement();
         PlayerJump();
         canJump = Physics.Raycast(groundCheck.position, Vector3.down, checkRadius, groundMask);
+
+        UpdateAnimation();  
     }
 
     void PlayerMovement()
@@ -59,5 +64,11 @@ public class CinemachinePlayerController : MonoBehaviour
             // Вращаем только по Y, чтобы тело поворачивалось с камерой
             transform.rotation = Quaternion.Euler(0f, panTilt.PanAxis.Value, 0f);
         }
+    }
+
+    void UpdateAnimation()
+    {
+        animator.SetFloat("speed", new Vector2(RB.linearVelocity.x, RB.linearVelocity.z).normalized.magnitude);
+        animator.SetBool("grounded", canJump);
     }
 }
