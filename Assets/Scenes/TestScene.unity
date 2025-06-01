@@ -249,6 +249,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1591587227042098510, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
+      propertyPath: Lens.NearClipPlane
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1591587227042098510, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 7560542192801633022}
@@ -258,11 +262,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.6159999
+      value: 1.6570001
       objectReference: {fileID: 0}
     - target: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.7566167
+      value: 0.4185167
       objectReference: {fileID: 0}
     - target: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: m_LocalRotation.w
@@ -682,7 +686,7 @@ Transform:
   m_GameObject: {fileID: 5958742906256299885}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.61599994, z: 0.462}
+  m_LocalPosition: {x: 0, y: 0.65700006, z: 0.1239}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -727,7 +731,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.3
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
@@ -940,7 +944,7 @@ Transform:
   m_GameObject: {fileID: 4020504613505295449}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.616, z: 0.462}
+  m_LocalPosition: {x: 0, y: 0.657, z: 0.1239}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -993,7 +997,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.2
   far clip plane: 1000
   field of view: 60.000004
   orthographic: 0
