@@ -54,6 +54,7 @@ public class CinemachinePlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && canJump)
         {
             RB.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            AnimationJump();
         }
     }
 
@@ -70,5 +71,10 @@ public class CinemachinePlayerController : MonoBehaviour
     {
         animator.SetFloat("speed", new Vector2(RB.linearVelocity.x, RB.linearVelocity.z).normalized.magnitude);
         animator.SetBool("grounded", canJump);
+    }
+
+    void AnimationJump()
+    {
+        animator.SetTrigger("jump");
     }
 }
