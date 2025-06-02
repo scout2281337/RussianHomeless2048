@@ -31,8 +31,8 @@ public class PlayerAnimations : MonoBehaviour
     {
         FlipSprite();
 
-        if (_player.CanDash && _player.DashRequest)
-            _animator.SetTrigger(_isDashingHash);
+        //if (_player.CanDash && _player.DashRequest)
+        //    _animator.SetTrigger(_isDashingHash);
     }
 
     private void LateUpdate()
@@ -41,7 +41,7 @@ public class PlayerAnimations : MonoBehaviour
         _animator.SetFloat(_ySpeedHash, _player.Velocity.y);
         _animator.SetBool(_isGroundedHash, _player.IsGrounded);
         _animator.SetBool(_isSlidingHash, _player.IsWallTouching);
-        _animator.SetBool(_isDashingHash, _player.CurrentState == PlayerStates.Dashing);
+        //_animator.SetBool(_isDashingHash, _player.CurrentState == PlayerStates.Dashing);
     }
 
     private void FlipSprite()

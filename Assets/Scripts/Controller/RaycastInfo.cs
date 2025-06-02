@@ -33,12 +33,13 @@ public class RaycastInfo : MonoBehaviour
     [System.Serializable]
     public struct RaycastHitInfo
     {
-        [ReadOnly] public bool Forward, Down;
+        [ReadOnly] public bool Forward, Down, Up;
 
         public void Reset()
         {
             Forward = false;
             Down = false;
+            Up = false;
         }
     }
 
@@ -56,12 +57,13 @@ public class RaycastInfo : MonoBehaviour
         // check for collisions
         CheckGround();
         CheckForward();
+        CheckUp();
     }
 
     #region Collisions
     enum CollisionType
     {
-        LowerVertical, UpperForward
+        LowerVertical, UpperForward,UpperVertical
     }
 
     private void CheckForCollisions(CollisionType type)
@@ -76,9 +78,13 @@ public class RaycastInfo : MonoBehaviour
                     new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), Vector3.right + Vector3.forward, Vector3.down, _groundLayers);
                 break;
             case CollisionType.UpperForward:
-                _hitGroundInfo.Forward = CheckForCollisions(_verticalRayCount, _horizontalRaySpacing,
+                _hitGroundInfo.Forward = CheckForCollisions(_horizontalRayCount, _horizontalRaySpacing,
                     transform.position + transform.forward * _collider.bounds.extents.z,
                     transform.up, transform.forward, _groundLayers);
+                break;
+            case CollisionType.UpperVertical:
+                _hitGroundInfo.Up = CheckForCollisions(_verticalRayCount, _verticalRaySpacing,
+                    new Vector3(bounds.min.x, bounds.max.y, bounds.min.z), Vector3.right + Vector3.forward, Vector3.up, _groundLayers);
                 break;
         }
     }
@@ -134,6 +140,10 @@ public class RaycastInfo : MonoBehaviour
     private void CheckGround()
     {
         CheckForCollisions(CollisionType.LowerVertical);
+    }
+    private void CheckUp()
+    {
+        CheckForCollisions(CollisionType.UpperVertical);
     }
     #endregion
 

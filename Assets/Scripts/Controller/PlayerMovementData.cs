@@ -64,22 +64,7 @@ public class PlayerMovementData : ScriptableObject
     [Tooltip("Multiplier applied to speed during 'jump hang'")]
     public float jumpHangMaxSpeedMult;
 
-    [Header("WALL JUMP")]
-    [Tooltip("Force applied to the player when wall jumping")]
-    public Vector2 wallJumpForce;
-    [Space(5)]
-    [Tooltip("Reduces the effect of player's movement while wall jumping")]
-    [Range(0, 1)] public float wallJumpRunLerp;
-
     [Space(20)]
-
-    [Header("SLIDE")]
-    [Tooltip("Target speed we want the player to reach while sliding")]
-    public float slideSpeed;
-    [Tooltip("The speed at which the player accelerates to max speed, can be set to runMaxSpeed to instant acceleration down to 0 for none at all")]
-    public float slideAccel;
-    [Tooltip("Time the input must be active to detach from the wall")]
-    [Range(0f, 0.1f)] public float wallSlideReleaseTime;
 
     [Header("DASH")]
     [Tooltip("Speed of the dash")]
@@ -90,6 +75,10 @@ public class PlayerMovementData : ScriptableObject
     public float dashRefillTime;
     [Tooltip("Time that the timeScale will be set to 0 when a dash is performed")]
     public float dashSleepTime;
+
+    [Header("CROUCH")]
+    public float crouchInputBufferTime;
+    public float crouchSpeedMultiplier;
 
     [Header("ASSISTS")]
     [Tooltip("Margin time to perform a jump while the player is falling")]

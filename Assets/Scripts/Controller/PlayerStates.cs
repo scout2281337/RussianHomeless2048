@@ -2,7 +2,7 @@ using UnityEngine;
 
 public enum PlayerStates
 {
-    Grounded, Jumping, JumpingOnEnemy, Falling, WallSliding, WallJumping, Dashing
+    Grounded, Jumping, Falling, Crouching
 }
 
 public abstract class PlayerBaseState : BaseState<PlayerStates>

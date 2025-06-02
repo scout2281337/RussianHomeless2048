@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class PlayerGroundedState : PlayerBaseState
+public class PlayerCrouchingState : PlayerBaseState
 {
-    public PlayerGroundedState(PlayerStates key, PlayerController context)
-        : base(key, context)
+    public PlayerCrouchingState(PlayerStates key, PlayerController context)
+       : base(key, context)
     {
         _lerpAmount = 1f;
         _canAddBonusJumpApex = false;
@@ -12,6 +12,7 @@ public class PlayerGroundedState : PlayerBaseState
     public override void EnterState()
     {
         Context.SetGravityScale(Context.Data.gravityScale);
+        Context.Crouch();
     }
 
     public override void UpdateState() { }
@@ -19,7 +20,6 @@ public class PlayerGroundedState : PlayerBaseState
     public override void FixedUpdateState()
     {
         Context.Run(_lerpAmount, _canAddBonusJumpApex);
-        Context.SetCameraPosition(Mathf.Abs(Context.Velocity.x) > .05f || Mathf.Abs(Context.Velocity.z) > .05f ? CameraPosition.run : CameraPosition.def);
     }
 
     public override void ExitState() { }
@@ -29,20 +29,18 @@ public class PlayerGroundedState : PlayerBaseState
         //set coyote time just when falling
         if (!Context.IsGrounded)
         {
-            Context.IsActiveCoyoteTime = true;
             return PlayerStates.Falling;
         }
 
-        if (Context.JumpRequest)
+        if (!Context.IsBlockedUp)
         {
-            Context.IsActiveCoyoteTime = false;
-            return PlayerStates.Jumping;
+            if (Context.JumpRequest || Context.CrouchRequest)
+            {
+                Context.UnCrouch();
+                return PlayerStates.Grounded;
+            }
         }
 
-        if (Context.CrouchRequest)
-        {
-            return PlayerStates.Crouching;
-        }
         return StateKey;
     }
 }

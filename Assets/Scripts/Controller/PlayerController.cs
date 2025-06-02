@@ -40,15 +40,20 @@ public class PlayerController : BaseStateMachine<PlayerStates>
 
     private PlayerInputActions _playerInputActions;
     private InputAction _movementAction;
+    private CapsuleCollider _capsuleCollider;
 
+    #endregion
 
+    #region Crouch Parameters
+    private float _lastPressedCrouchTime;
+    public bool CrouchRequest { get; private set; }
     #endregion
 
     #region Dash Parameters
     private float _lastPressedDashTime;
-    private bool _isDashRefilling;
-    public bool IsDashActive { get; set; } // set to true when grounded, and false when dashing
-    public bool CanDash => IsDashActive && !_isDashRefilling;
+    //private bool _isDashRefilling;
+    //public bool IsDashActive { get; set; } // set to true when grounded, and false when dashing
+    //public bool CanDash => IsDashActive && !_isDashRefilling;
     public bool DashRequest { get; private set; }
     #endregion
 
@@ -66,8 +71,9 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     private float _lastPressedJumpTime;
     private float _lastPressedJumpTimeE;
     public bool IsGrounded => _raycastInfo.HitGroundInfo.Down;
+    public bool IsBlockedUp => _raycastInfo.HitGroundInfo.Up;
     public bool IsWallTouching => FaceWallHit && IsGrounded;
-    public bool JumpRequest { get; private set; }
+    public bool JumpRequest { get; set; }
     public bool HandleLongJumps { get; private set; }
     public bool IsActiveCoyoteTime { get; set; }
 
@@ -80,6 +86,7 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         _rb.useGravity = true;
         _raycastInfo = GetComponent<RaycastInfo>();
         _playerInputActions = new PlayerInputActions();
+        _capsuleCollider = GetComponent<CapsuleCollider>();
     }
 
     protected override void Start()
@@ -94,7 +101,7 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         SyncRotationWithCamera();
         // manage input buffers time
         ManageJumpBuffer();
-        ManageDashBuffer();///crouch?
+        ManageCrouchBuffer();///crouch?
     }
 
     private void OnEnable()
@@ -114,9 +121,7 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         States.Add(PlayerStates.Grounded, new PlayerGroundedState(PlayerStates.Grounded, this));
         States.Add(PlayerStates.Jumping, new PlayerJumpingState(PlayerStates.Jumping, this));
         States.Add(PlayerStates.Falling, new PlayerFallingState(PlayerStates.Falling, this));
-        //States.Add(PlayerStates.WallSliding, new PlayerWallSlidingState(PlayerStates.WallSliding, this));
-        //States.Add(PlayerStates.WallJumping, new PlayerWallJumpingState(PlayerStates.WallJumping, this));
-        //States.Add(PlayerStates.Dashing, new PlayerDashingState(PlayerStates.Dashing, this));
+        States.Add(PlayerStates.Crouching, new PlayerCrouchingState(PlayerStates.Crouching, this));
 
         // set the player's initial state
         _currentState = States[PlayerStates.Grounded];
@@ -133,15 +138,15 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         _playerInputActions.Player.Jump.canceled += OnJumpAction;
         _playerInputActions.Player.Jump.Enable();
 
-        //_playerInputActions.Player.Dash.performed += OnDashAction;    ////crouch/fight/block
-        //_playerInputActions.Player.Dash.Enable();
+        _playerInputActions.Player.Crouch.performed += OnCrouchAction;    ////crouch/fight/block
+        _playerInputActions.Player.Crouch.Enable();
     }
 
     private void DisableInput()
     {
         _movementAction.Disable();
         _playerInputActions.Player.Jump.Disable();
-        //_playerInputActions.Player.Dash.Disable();   ////crouch/fight/block
+        _playerInputActions.Player.Crouch.Disable();   ////crouch/fight/block
     }
     #endregion
 
@@ -173,22 +178,11 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     #region Movement Functions
     public void Run(float lerpAmount, bool canAddBonusJumpApex)
     {
-        {//Vector3 cameraForward = Camera.main.transform.forward;
-        //Vector3 cameraRight = Camera.main.transform.right;
-        //cameraForward.y = 0f;
-        //cameraRight.y = 0f;
-        //cameraForward.Normalize();
-        //cameraRight.Normalize();
-
-        //Vector3 targetDirection = cameraForward * MovementDirection.normalized.y + cameraRight * MovementDirection.normalized.x;
-        //targetDirection.y = 0f;
-        //targetDirection.Normalize();
-        }
-
         Vector3 targetDirection = transform.forward.normalized * MovementDirection.normalized.y + transform.right.normalized * MovementDirection.normalized.x;
 
         Vector3 flatVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
-        float targetSpeed = MovementDirection.magnitude * Data.runMaxSpeed;
+        float targetSpeed = MovementDirection.magnitude * Data.runMaxSpeed 
+            * (CurrentState==PlayerStates.Crouching? Data.crouchSpeedMultiplier : 1);
 
         targetSpeed = Mathf.Lerp(flatVelocity.magnitude, targetSpeed, lerpAmount);
 
@@ -265,38 +259,77 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     }
     #endregion
 
-    #region Dash Functions
-    public void RefillDash() ////refill attack/block
-    {
-        StartCoroutine(nameof(PerformRefillDash));
-    }
-
-    private IEnumerator PerformRefillDash()
-    {
-        _isDashRefilling = true;
-        yield return new WaitForSeconds(Data.dashRefillTime);
-        _isDashRefilling = false;
-    }
-
-    private void OnDashAction(InputAction.CallbackContext context) ////attack/block
+    #region Crouch Functions
+    private void OnCrouchAction(InputAction.CallbackContext context) ////attack/block
     {
         if (context.ReadValueAsButton())
         {
-            DashRequest = true;
-            _lastPressedDashTime = Data.dashInputBufferTime; // reset buffer time
+            CrouchRequest = true;
+            _lastPressedCrouchTime = Data.crouchInputBufferTime; // reset buffer time
         }
     }
 
-    private void ManageDashBuffer() ////
+    private void ManageCrouchBuffer() ////
     {
-        if (!DashRequest) return;
+        if (!CrouchRequest) return;
 
-        _lastPressedDashTime -= Time.deltaTime;
-        if (_lastPressedDashTime <= 0)
+        _lastPressedCrouchTime -= Time.deltaTime;
+        if (_lastPressedCrouchTime <= 0)
         {
-            DashRequest = false;
+            CrouchRequest = false;
         }
     }
+
+    public void Crouch()
+    {
+        SetCameraPosition(CameraPosition.crouch);
+        CrouchRequest = false;
+        _capsuleCollider.height = 1;
+        _capsuleCollider.center = new Vector3(0, -_capsuleCollider.height / 2, 0);
+
+    }
+    public void UnCrouch()
+    {
+        CrouchRequest = false;
+        JumpRequest = false;
+        _capsuleCollider.center = new Vector3(0, 0, 0);
+        _capsuleCollider.height = 2;
+        
+    }
+    #endregion
+
+    #region Dash Functions
+    //public void RefillDash() ////refill attack/block
+    //{
+    //    StartCoroutine(nameof(PerformRefillDash));
+    //}
+
+    //private IEnumerator PerformRefillDash()
+    //{
+    //    _isDashRefilling = true;
+    //    yield return new WaitForSeconds(Data.dashRefillTime);
+    //    _isDashRefilling = false;
+    //}
+
+    //private void OnCrouchAction(InputAction.CallbackContext context) ////attack/block
+    //{
+    //    if (context.ReadValueAsButton())
+    //    {
+    //        DashRequest = true;
+    //        _lastPressedDashTime = Data.dashInputBufferTime; // reset buffer time
+    //    }
+    //}
+
+    //private void ManageDashBuffer() ////
+    //{
+    //    if (!DashRequest) return;
+
+    //    _lastPressedDashTime -= Time.deltaTime;
+    //    if (_lastPressedDashTime <= 0)
+    //    {
+    //        DashRequest = false;
+    //    }
+    //}
     #endregion
 
     #region General Methods
