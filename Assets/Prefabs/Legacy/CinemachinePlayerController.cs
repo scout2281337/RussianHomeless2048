@@ -69,12 +69,12 @@ public class CinemachinePlayerController : MonoBehaviour
 
     void UpdateAnimation()
     {
-        animator.SetFloat("speed", new Vector2(RB.linearVelocity.x, RB.linearVelocity.z).normalized.magnitude);
-        animator.SetBool("grounded", canJump);
+        //animator.SetFloat("speed", new Vector2(RB.linearVelocity.x, RB.linearVelocity.z).normalized.magnitude);
+        //animator.SetBool("grounded", canJump);
     }
 
     void AnimationJump()
     {
-        animator.SetTrigger("jump");
+        //animator.SetTrigger("jump");
     }
 }
