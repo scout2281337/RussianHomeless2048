@@ -22,6 +22,10 @@ public class PatrolState : IState
     }
     public void Update()
     {
+        if (Input.GetKey(KeyCode.E))
+        {
+            npc._NPC_StateMachine.SetState(new IdleState(npc));
+        }
         if (!npc.Agent.pathPending && npc.Agent.remainingDistance <= npc.Agent.stoppingDistance)
         {
             waitTimer += Time.deltaTime;
@@ -40,6 +44,7 @@ public class PatrolState : IState
 
     private void PickNewDestination() 
     {
+        
         waitTime = Random.Range(0.1f, 10f);
         
         Vector3 randomDirection = Random.insideUnitSphere * PatrolRadius;

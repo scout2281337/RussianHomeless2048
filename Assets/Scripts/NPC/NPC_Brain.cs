@@ -14,7 +14,7 @@ public class NPC_Brain : MonoBehaviour, IInteractable
         Agent = GetComponent<NavMeshAgent>();
         _NPC_StateMachine = new NPC_StateMachine();
         _NPC_StateMachine.SetState(new PatrolState(this));
-
+        _NPC_StateMachine.OnStateChanged += SwitchAnimations;
         NPCAnimator = GetComponent<NPC_Animator>();
 
     }
@@ -25,16 +25,16 @@ public class NPC_Brain : MonoBehaviour, IInteractable
     protected void Update()
     {
         _NPC_StateMachine.StateUpdate();
-        float speed = Agent.velocity.magnitude;
-        if ( NPCAnimator != null ) 
-        {
-            NPCAnimator.SetSpeed(speed);
-        }
     }
 
     public virtual void Interact()
     {
         Debug.Log("Default Interaction");
+    }
+
+    private void SwitchAnimations() 
+    {
+        NPCAnimator.SwitchAnimationState("IdleVariant", Random.Range(0, 3));
     }
 
 

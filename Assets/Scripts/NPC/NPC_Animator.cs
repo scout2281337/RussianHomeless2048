@@ -3,33 +3,34 @@ using UnityEngine;
 public class NPC_Animator : MonoBehaviour
 {
     private Animator animator;
+    private NPC_Brain NPC_Brain;
 
     void Awake()
     {
         animator = GetComponentInChildren<Animator>();
+        NPC_Brain = GetComponent<NPC_Brain>();
         if (animator == null ) 
         {
             Debug.Log("Аниматор не найден");
         }
     }
 
-    public virtual void SetWalking(bool isWalking)
-    {
-        animator.SetBool("isWalking", isWalking);
+    public virtual void SetSpeed()
+    { 
+        if (animator != null)
+        {
+            float speed = NPC_Brain.Agent.velocity.magnitude; 
+            animator.SetFloat("Speed", speed);
+        }
     }
 
-    public virtual void TriggerAttack()
+    private void Update()
     {
-        animator.SetTrigger("Attack");
+        SetSpeed();
     }
 
-    public virtual void TriggerDie()
+    public void SwitchAnimationState(string nameOfVariable, int Value) 
     {
-        animator.SetTrigger("Die");
-    }
-
-    public virtual void SetSpeed(float speed)
-    {
-        animator.SetFloat("Speed", speed);
+        animator.SetInteger(nameOfVariable, Value);
     }
 }

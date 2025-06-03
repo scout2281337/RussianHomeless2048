@@ -16,8 +16,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -33,7 +31,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: A_POLY_IDL_PlayWithHair_L_SweepBack_Masc
+      name: IdleHair
       takeName: A_Idles_PlayWithHair_SweepBackLeft_Masc
       internalID: 4170614716295545128
       firstFrame: 1
