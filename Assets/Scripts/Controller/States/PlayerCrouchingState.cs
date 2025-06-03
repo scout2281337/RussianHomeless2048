@@ -31,7 +31,7 @@ public class PlayerCrouchingState : PlayerBaseState
         //    return PlayerStates.Falling;
         //}
 
-        if (!Context.IsBlockedUp)
+        if (!Context.IsBlockedUp && Context.IsGrounded)
         {
             if (Context.JumpRequest || Context.CrouchRequest)
             {

@@ -64,21 +64,14 @@ public class PlayerMovementData : ScriptableObject
     [Tooltip("Multiplier applied to speed during 'jump hang'")]
     public float jumpHangMaxSpeedMult;
 
-    [Space(20)]
-
-    [Header("DASH")]
-    [Tooltip("Speed of the dash")]
-    public float dashSpeed;
-    [Tooltip("Duration of the dash")]
-    public float dashTime;
-    [Tooltip("Time to recharge the dash after dashing")]
-    public float dashRefillTime;
-    [Tooltip("Time that the timeScale will be set to 0 when a dash is performed")]
-    public float dashSleepTime;
-
     [Header("CROUCH")]
     public float crouchInputBufferTime;
     public float crouchSpeedMultiplier;
+
+    [Header("ATTACK")]
+    public float punchInputBufferTime;
+    public float punchRefillTime;
+    public float punchTime;
 
     [Header("ASSISTS")]
     [Tooltip("Margin time to perform a jump while the player is falling")]

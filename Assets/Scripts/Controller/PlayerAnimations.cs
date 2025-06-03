@@ -11,6 +11,8 @@ public class PlayerAnimations : MonoBehaviour
     private int _isGroundedHash;
     private int _jumpHash;
     private int _isCrouchHash;
+    private int _isFightHash;
+    private int _punchHash;
 
     private void Awake()
     {
@@ -23,12 +25,19 @@ public class PlayerAnimations : MonoBehaviour
         _isGroundedHash = Animator.StringToHash("isGrounded");
         _jumpHash = Animator.StringToHash("jump");
         _isCrouchHash = Animator.StringToHash("isCrouching");
+        _isFightHash = Animator.StringToHash("isFight");
+        _punchHash = Animator.StringToHash("punch");
     }
 
     private void Update()
     {
-        if (_player.IsGrounded && _player.JumpRequest && _player.CurrentState!=PlayerStates.Crouching)
+        if (_player.IsGrounded && _player.JumpRequest && _player.CurrentState != PlayerStates.Crouching)
             _animator.SetTrigger(_jumpHash);
+        if (_player.PunchAnimRequest)
+        {
+            _animator.SetTrigger(_punchHash);
+            _player.ResetPunchAnimPossibility();
+        }
     }
 
     private void LateUpdate()
@@ -37,6 +46,7 @@ public class PlayerAnimations : MonoBehaviour
         _animator.SetFloat(_ySpeedHash, _player.Velocity.y);
         _animator.SetBool(_isGroundedHash, _player.IsGrounded);
         _animator.SetBool(_isCrouchHash, _player.CurrentState == PlayerStates.Crouching);
+        _animator.SetBool(_isFightHash, _player.IsFighting);
     }
 
 }

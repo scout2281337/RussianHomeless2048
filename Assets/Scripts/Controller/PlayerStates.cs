@@ -1,9 +1,6 @@
 using UnityEngine;
 
-public enum PlayerStates
-{
-    Grounded, Jumping, Falling, Crouching
-}
+
 
 public abstract class PlayerBaseState : BaseState<PlayerStates>
 {
@@ -17,4 +14,8 @@ public abstract class PlayerBaseState : BaseState<PlayerStates>
     {
         Context = context;
     }
+}
+public enum PlayerStates
+{
+    Grounded, Jumping, Falling, Crouching, FightIdle, FightPunch
 }

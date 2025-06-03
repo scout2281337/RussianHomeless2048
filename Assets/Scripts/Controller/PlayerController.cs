@@ -2,10 +2,11 @@ using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public enum CameraPosition
 {
-    def, run, crouch
+    def, run, crouch, fight
 }
 
 [RequireComponent(typeof(Rigidbody), typeof(RaycastInfo))]
@@ -19,6 +20,7 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     [SerializeField] private Transform _cameraPosDef;
     [SerializeField] private Transform _cameraPosRun;
     [SerializeField] private Transform _cameraPosCrouch;
+    [SerializeField] private Transform _cameraPosFight;
 
     [Header("VFX points")]
     [SerializeField] private Transform _bottonVFXPoint;
@@ -42,19 +44,26 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     private InputAction _movementAction;
     private CapsuleCollider _capsuleCollider;
 
+    private HandsIK _handsIK;
+
     #endregion
 
     #region Crouch Parameters
+
     private float _lastPressedCrouchTime;
     public bool CrouchRequest { get; private set; }
     #endregion
 
-    #region Dash Parameters
-    private float _lastPressedDashTime;
-    //private bool _isDashRefilling;
-    //public bool IsDashActive { get; set; } // set to true when grounded, and false when dashing
-    //public bool CanDash => IsDashActive && !_isDashRefilling;
-    public bool DashRequest { get; private set; }
+    #region Fight Parameters
+
+    public bool IsFighting;
+    public bool PunchRequest { get; set; }
+    public bool PunchAnimRequest { get; set; }
+    public bool IsPunchActive { get; set; }
+
+    private float _lastPressedPunchTime;
+    private bool _isPunchRefilling;
+    public bool CanPunch => !_isPunchRefilling && IsPunchActive;
     #endregion
 
     #region Movement Parameters
@@ -71,6 +80,7 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     private float _lastPressedJumpTime;
     private float _lastPressedJumpTimeE;
     public bool IsGrounded => _raycastInfo.HitGroundInfo.Down;
+    public bool IsMovingHorizontal => Mathf.Abs(new Vector2(Velocity.x, Velocity.z).magnitude) > .05f;
     public bool IsBlockedUp => _raycastInfo.HitGroundInfo.Up;
     public bool IsWallTouching => FaceWallHit && IsGrounded;
     public bool JumpRequest { get; set; }
@@ -87,23 +97,33 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         _raycastInfo = GetComponent<RaycastInfo>();
         _playerInputActions = new PlayerInputActions();
         _capsuleCollider = GetComponent<CapsuleCollider>();
+        _handsIK = GetComponent<HandsIK>();
+
     }
 
     protected override void Start()
     {
         base.Start();
         SetGravityScale(Data.gravityScale);
+        SetHandsIK(false);
+        IsPunchActive = true;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     protected override void Update()
     {
         base.Update();
-        SyncRotationWithCamera();
+        
         // manage input buffers time
         ManageJumpBuffer();
-        ManageCrouchBuffer();///crouch?
+        ManageCrouchBuffer();
+        ManagePunchBuffer();
     }
-
+    protected override void FixedUpdate()
+    {
+        base.FixedUpdate();
+        SyncRotationWithCamera();
+    }
     private void OnEnable()
     {
         EnableInput();
@@ -122,6 +142,8 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         States.Add(PlayerStates.Jumping, new PlayerJumpingState(PlayerStates.Jumping, this));
         States.Add(PlayerStates.Falling, new PlayerFallingState(PlayerStates.Falling, this));
         States.Add(PlayerStates.Crouching, new PlayerCrouchingState(PlayerStates.Crouching, this));
+        States.Add(PlayerStates.FightIdle, new PlayerFightIdleState(PlayerStates.FightIdle, this));
+        States.Add(PlayerStates.FightPunch, new PlayerPunchState(PlayerStates.FightPunch, this));
 
         // set the player's initial state
         _currentState = States[PlayerStates.Grounded];
@@ -138,15 +160,72 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         _playerInputActions.Player.Jump.canceled += OnJumpAction;
         _playerInputActions.Player.Jump.Enable();
 
-        _playerInputActions.Player.Crouch.performed += OnCrouchAction;    ////crouch/fight/block
+        _playerInputActions.Player.Crouch.performed += OnCrouchAction;    ////crouch
         _playerInputActions.Player.Crouch.Enable();
+
+        _playerInputActions.Player.Attack.performed += OnPunchAction;    ////fight/block
+        _playerInputActions.Player.Attack.Enable();
     }
 
     private void DisableInput()
     {
         _movementAction.Disable();
         _playerInputActions.Player.Jump.Disable();
-        _playerInputActions.Player.Crouch.Disable();   ////crouch/fight/block
+        _playerInputActions.Player.Crouch.Disable();   ////crouch
+        _playerInputActions.Player.Attack.Disable();   ////fight/block
+    }
+    #endregion
+
+    #region FightFunctions
+
+    public void SetHandsIK(bool isOn)
+    {
+        _handsIK.SetHandIK(isOn);
+    }
+
+    public void SetFightMode(bool isOn)
+    {
+        IsFighting = isOn;
+    }
+
+    public void Punch()
+    {
+        
+    }
+
+    public void ResetPunchAnimPossibility()
+    {
+        PunchAnimRequest = false;
+    }
+
+    private void OnPunchAction(InputAction.CallbackContext context)
+    {
+        if (context.ReadValueAsButton())
+        {
+            PunchRequest = true;
+            _lastPressedPunchTime = Data.punchInputBufferTime; // reset buffer time
+        }
+    }
+    private void ManagePunchBuffer()
+    {
+        if (!PunchRequest) return;
+
+        _lastPressedPunchTime -= Time.deltaTime;
+        if (_lastPressedPunchTime <= 0)
+        {
+            PunchRequest = false;
+        }
+    }
+    public void RefillPunch()
+    {
+        StartCoroutine(nameof(PerformRefillPunch));
+    }
+
+    private IEnumerator PerformRefillPunch()
+    {
+        _isPunchRefilling = true;
+        yield return new WaitForSeconds(Data.punchRefillTime);
+        _isPunchRefilling = false;
     }
     #endregion
 
@@ -171,8 +250,12 @@ public class PlayerController : BaseStateMachine<PlayerStates>
             case CameraPosition.crouch:
                 cam.Follow = _cameraPosCrouch;
                 break;
+            case CameraPosition.fight:
+                cam.Follow = _cameraPosFight;
+                break;
         }
     }
+
     #endregion
 
     #region Movement Functions
@@ -211,12 +294,6 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         Vector3 movement = velocityDiff * accelRate;
 
         _rb.AddForce(movement, ForceMode.Force);
-
-        // _rb.velocity = new Vector3(
-        //     Mathf.Lerp(_rb.velocity.x, targetVelocity.x, accelRate * Time.fixedDeltaTime),
-        //     _rb.velocity.y,
-        //     Mathf.Lerp(_rb.velocity.z, targetVelocity.z, accelRate * Time.fixedDeltaTime)
-        // );
     }
 
     #endregion
@@ -296,40 +373,6 @@ public class PlayerController : BaseStateMachine<PlayerStates>
         _capsuleCollider.height = 2;
         
     }
-    #endregion
-
-    #region Dash Functions
-    //public void RefillDash() ////refill attack/block
-    //{
-    //    StartCoroutine(nameof(PerformRefillDash));
-    //}
-
-    //private IEnumerator PerformRefillDash()
-    //{
-    //    _isDashRefilling = true;
-    //    yield return new WaitForSeconds(Data.dashRefillTime);
-    //    _isDashRefilling = false;
-    //}
-
-    //private void OnCrouchAction(InputAction.CallbackContext context) ////attack/block
-    //{
-    //    if (context.ReadValueAsButton())
-    //    {
-    //        DashRequest = true;
-    //        _lastPressedDashTime = Data.dashInputBufferTime; // reset buffer time
-    //    }
-    //}
-
-    //private void ManageDashBuffer() ////
-    //{
-    //    if (!DashRequest) return;
-
-    //    _lastPressedDashTime -= Time.deltaTime;
-    //    if (_lastPressedDashTime <= 0)
-    //    {
-    //        DashRequest = false;
-    //    }
-    //}
     #endregion
 
     #region General Methods

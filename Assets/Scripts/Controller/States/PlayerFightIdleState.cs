@@ -1,8 +1,9 @@
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
-public class PlayerGroundedState : PlayerBaseState
+public class PlayerFightIdleState : PlayerBaseState
 {
-    public PlayerGroundedState(PlayerStates key, PlayerController context)
+    public PlayerFightIdleState(PlayerStates key, PlayerController context)
         : base(key, context)
     {
         _lerpAmount = 1f;
@@ -12,6 +13,8 @@ public class PlayerGroundedState : PlayerBaseState
     public override void EnterState()
     {
         Context.SetGravityScale(Context.Data.gravityScale);
+        Context.SetCameraPosition(CameraPosition.fight);
+        Context.SetHandsIK(true);
     }
 
     public override void UpdateState() { }
@@ -19,7 +22,6 @@ public class PlayerGroundedState : PlayerBaseState
     public override void FixedUpdateState()
     {
         Context.Run(_lerpAmount, _canAddBonusJumpApex);
-        Context.SetCameraPosition(Mathf.Abs(Context.Velocity.x) > .05f || Mathf.Abs(Context.Velocity.z) > .05f ? CameraPosition.run : CameraPosition.def);
     }
 
     public override void ExitState() { }
@@ -29,24 +31,33 @@ public class PlayerGroundedState : PlayerBaseState
         //set coyote time just when falling
         if (!Context.IsGrounded)
         {
+            Context.SetHandsIK(false);
             Context.IsActiveCoyoteTime = true;
             return PlayerStates.Falling;
         }
 
+        if (Context.IsGrounded && !Context.IsFighting)// || Context.IsMovingHorizontal)
+        {
+            Context.SetHandsIK(false);
+            return PlayerStates.Grounded;
+        }
+
         if (Context.JumpRequest)
         {
+            Context.SetHandsIK(false);
             Context.IsActiveCoyoteTime = false;
             return PlayerStates.Jumping;
         }
 
         if (Context.CrouchRequest)
         {
+            Context.SetHandsIK(false);
             return PlayerStates.Crouching;
         }
 
-        if (Context.IsFighting)
+        if (Context.PunchRequest && Context.CanPunch)
         {
-            return PlayerStates.FightIdle;
+            return PlayerStates.FightPunch;
         }
         return StateKey;
     }

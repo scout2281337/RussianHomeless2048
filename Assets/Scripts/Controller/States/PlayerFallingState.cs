@@ -55,7 +55,9 @@ public class PlayerFallingState : PlayerBaseState
     public override PlayerStates GetNextState()
     {
         if (Context.IsGrounded)
+        {
             return PlayerStates.Grounded;
+        }
 
         if (Context.JumpRequest)
         {
