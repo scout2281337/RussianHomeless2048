@@ -26,11 +26,10 @@ public class PlayerCrouchingState : PlayerBaseState
 
     public override PlayerStates GetNextState()
     {
-        //set coyote time just when falling
-        if (!Context.IsGrounded)
-        {
-            return PlayerStates.Falling;
-        }
+        //if (!Context.IsGrounded)
+        //{
+        //    return PlayerStates.Falling;
+        //}
 
         if (!Context.IsBlockedUp)
         {
