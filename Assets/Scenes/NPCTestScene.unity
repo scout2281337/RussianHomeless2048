@@ -593,9 +593,17 @@ PrefabInstance:
       propertyPath: point
       value: 
       objectReference: {fileID: 1525633552}
+    - target: {fileID: 1984337748224022086, guid: ef5cb9e54b15b894d8ea0ea1eacf3e90, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3658543090698735655, guid: ef5cb9e54b15b894d8ea0ea1eacf3e90, type: 3}
       propertyPath: m_Name
       value: NPC
+      objectReference: {fileID: 0}
+    - target: {fileID: 5896313462627630489, guid: ef5cb9e54b15b894d8ea0ea1eacf3e90, type: 3}
+      propertyPath: m_Speed
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9169270864070306064, guid: ef5cb9e54b15b894d8ea0ea1eacf3e90, type: 3}
       propertyPath: m_LocalPosition.x
