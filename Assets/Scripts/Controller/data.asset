@@ -42,3 +42,4 @@ MonoBehaviour:
   coyoteTime: 0.219
   jumpInputBufferTime: 0.208
   dashInputBufferTime: 0.102
+  rotationSmooth: 0.1

@@ -80,6 +80,7 @@ public class PlayerMovementData : ScriptableObject
     [Range(0.01f, 0.5f)] public float jumpInputBufferTime;
     [Tooltip("Margin time in which the dash input can be processed")]
     [Range(0.01f, 0.5f)] public float dashInputBufferTime;
+    public float rotationSmooth;
 
     private void OnValidate()
     {

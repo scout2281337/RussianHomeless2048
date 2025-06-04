@@ -15,6 +15,8 @@ public class RaycastInfo : MonoBehaviour
     [SerializeField] private int _horizontalRayCount = 4;
     [Tooltip("Specifies the layers for collision detection")]
     [SerializeField] private LayerMask _groundLayers;
+    [SerializeField] private float _horizontalCornerShift = 0.1f;
+    [SerializeField] private float _vericalCornerShift = 0.1f;
 
     [Header("Debug")]
     [SerializeField] private bool _showDebugRays = true;
@@ -75,16 +77,18 @@ public class RaycastInfo : MonoBehaviour
         {
             case CollisionType.LowerVertical:
                 _hitGroundInfo.Down = CheckForCollisions(_verticalRayCount, _verticalRaySpacing,
-                    new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), Vector3.right + Vector3.forward, Vector3.down, _groundLayers);
+                    new Vector3(bounds.min.x + _vericalCornerShift, bounds.min.y, bounds.min.z + _vericalCornerShift),
+                    Vector3.right + Vector3.forward, Vector3.down, _groundLayers);
                 break;
             case CollisionType.UpperForward:
                 _hitGroundInfo.Forward = CheckForCollisions(_horizontalRayCount, _horizontalRaySpacing,
-                    transform.position + transform.forward * _collider.bounds.extents.z,
+                    transform.position + transform.forward * _collider.bounds.extents.z, //+?
                     transform.up, transform.forward, _groundLayers);
                 break;
             case CollisionType.UpperVertical:
                 _hitGroundInfo.Up = CheckForCollisions(_verticalRayCount, _verticalRaySpacing,
-                    new Vector3(bounds.min.x, bounds.max.y, bounds.min.z), Vector3.right + Vector3.forward, Vector3.up, _groundLayers);
+                    new Vector3(bounds.min.x + _vericalCornerShift, bounds.max.y, bounds.min.z + _vericalCornerShift),
+                    Vector3.right + Vector3.forward, Vector3.up, _groundLayers);
                 break;
         }
     }
@@ -102,8 +106,6 @@ public class RaycastInfo : MonoBehaviour
     private bool CheckForCollisions(int rayCount, float raySpacing, Vector3 startRayOrigin,
         Vector3 raycastShiftDirection, Vector3 raycastDirection, LayerMask layer)
     {
-        Bounds bounds = _collider.bounds;
-        bounds.Expand(_skinWidth * -2);
         bool hasHit = false;
 
         for (int i = 0; i < rayCount; i++)
@@ -111,7 +113,8 @@ public class RaycastInfo : MonoBehaviour
             for (int j = 0; j < rayCount; j++)
             {
                 Vector3 rayOrigin = startRayOrigin;
-                rayOrigin += new Vector3(raycastShiftDirection.x * (raySpacing * i), raycastShiftDirection.y * (raySpacing * j), raycastShiftDirection.z * (raySpacing * j));
+                rayOrigin += new Vector3(raycastShiftDirection.x * (raySpacing * i), 
+                    raycastShiftDirection.y * (raySpacing * j), raycastShiftDirection.z * (raySpacing * j));
                 Color raycastColor = Color.red;
                 if (Physics.Raycast(rayOrigin, raycastDirection, _rayLength, layer))
                 {
@@ -134,7 +137,7 @@ public class RaycastInfo : MonoBehaviour
         bounds.Expand(_skinWidth * -2);
 
         _verticalRayCount = Mathf.Clamp(_verticalRayCount, 2, int.MaxValue);
-        _verticalRaySpacing = bounds.size.x / (_verticalRayCount - 1);
+        _verticalRaySpacing = (bounds.size.x - _vericalCornerShift*2) / (_verticalRayCount - 1);
     }
 
     private void CheckGround()
@@ -154,7 +157,7 @@ public class RaycastInfo : MonoBehaviour
         bounds.Expand(_skinWidth * -2);
 
         _horizontalRayCount = Mathf.Clamp(_horizontalRayCount, 2, int.MaxValue);
-        _horizontalRaySpacing = bounds.size.y / 2 / (_horizontalRayCount - 1);
+        _horizontalRaySpacing = (bounds.size.y / 2 - _horizontalCornerShift*2) / (_horizontalRayCount - 1);
     }
 
     private void CheckForward()

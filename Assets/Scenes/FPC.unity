@@ -2638,6 +2638,10 @@ PrefabInstance:
       propertyPath: TiltAxis.Range.y
       value: 60
       objectReference: {fileID: 0}
+    - target: {fileID: 1399116425790822727, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1591587227042098510, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: Lens.NearClipPlane
       value: 0.1
@@ -2648,11 +2652,11 @@ PrefabInstance:
       objectReference: {fileID: 1258640400}
     - target: {fileID: 6506875224215552322, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: Damping
-      value: 0.05
+      value: 0.115
       objectReference: {fileID: 0}
     - target: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.9057972
+      value: 8.46
       objectReference: {fileID: 0}
     - target: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2660,7 +2664,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 8.397888
+      value: 12.242
       objectReference: {fileID: 0}
     - target: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2730,6 +2734,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1446375314}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1310950527 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7027707267671538709, guid: bd1abc1c913cf3448b10e1d9eaefe537, type: 3}
+  m_PrefabInstance: {fileID: 1242679720}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1383534478
 GameObject:
   m_ObjectHideFlags: 0
@@ -6302,7 +6311,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5958742906359075798}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.99506426, z: 0, w: 0.09923302}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.40600002, z: -0.15799999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6317,8 +6326,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5399967266913496273}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.99506426, z: 0, w: 0.09923302}
-  m_LocalPosition: {x: -2.937, y: 1.255, z: 8.243}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.46, y: 1.255, z: 12.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6326,7 +6335,7 @@ Transform:
   - {fileID: 2234264151848931132}
   - {fileID: 1446375314}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -168.61, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4020504611527663842
 GameObject:
   m_ObjectHideFlags: 0
@@ -6446,11 +6455,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _skinWidth: 0.05
   _rayLength: 0.2
-  _verticalRayCount: 5
+  _verticalRayCount: 3
   _horizontalRayCount: 3
   _groundLayers:
     serializedVersion: 2
     m_Bits: 1
+  _horizontalCornerShift: 0.2
+  _vericalCornerShift: 0.2
   _showDebugRays: 1
   _hitGroundInfo:
     Forward: 0
@@ -6509,6 +6520,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HandTarget: {fileID: 1100294898}
   HandRig: {fileID: 2046202701}
+  cameraTransform: {fileID: 1310950527}
   handIKWeight: 1
 --- !u!1 &5958742906359075798
 GameObject:

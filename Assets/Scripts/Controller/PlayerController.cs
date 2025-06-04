@@ -122,6 +122,11 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
+        _rb.angularVelocity = Vector3.zero;
+        _rb.rotation = transform.rotation;
+    }
+    private void LateUpdate()
+    {
         SyncRotationWithCamera();
     }
     private void OnEnable()
@@ -261,7 +266,19 @@ public class PlayerController : BaseStateMachine<PlayerStates>
     #region Movement Functions
     public void Run(float lerpAmount, bool canAddBonusJumpApex)
     {
-        Vector3 targetDirection = transform.forward.normalized * MovementDirection.normalized.y + transform.right.normalized * MovementDirection.normalized.x;
+        //Vector3 targetDirection = transform.forward.normalized * MovementDirection.normalized.y + transform.right.normalized * MovementDirection.normalized.x;
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Vector3 cameraRight = Camera.main.transform.right;
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        // Преобразуем входные данные в направление относительно камеры
+        Vector3 targetDirection = cameraForward * MovementDirection.normalized.y +
+                                cameraRight * MovementDirection.normalized.x;
+        targetDirection.y = 0f;
+        targetDirection.Normalize();
 
         Vector3 flatVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
         float targetSpeed = MovementDirection.magnitude * Data.runMaxSpeed 
