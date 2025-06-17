@@ -19,6 +19,7 @@ public class PatrolState : IState
     {
         Debug.Log("current state : Patrol");
         PickNewDestination();
+        npc.SwitchSpeed(2f);
     }
     public void Update()
     {
@@ -34,6 +35,10 @@ public class PatrolState : IState
                 waitTimer = 0f;
                 PickNewDestination();
             }
+        }
+        if (npc.CanSeePlayer()) 
+        {
+            npc._NPC_StateMachine.SetState(new ChaseState(npc));
         }
     }
     public void Exit()
