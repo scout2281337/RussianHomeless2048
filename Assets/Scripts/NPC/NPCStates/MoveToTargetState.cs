@@ -22,7 +22,7 @@ public class MoveToTargetState : IState
         float distance = Vector3.Distance(npc.transform.position, target.position);
         if (distance < 0.5) 
         {
-            npc._NPC_StateMachine.SetState(new IdleState(npc));
+            npc._NPC_StateMachine.SetState(new PatrolState(npc));
         }
     }
     public void Exit()

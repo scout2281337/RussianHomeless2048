@@ -38,7 +38,7 @@ public class PatrolState : IState
         }
         if (npc.CanSeePlayer()) 
         {
-            npc._NPC_StateMachine.SetState(new ChaseState(npc));
+            npc._NPC_StateMachine.SetState(new PanicState(npc));
         }
     }
     public void Exit()

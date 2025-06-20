@@ -13,7 +13,9 @@ public class NPC_Brain : MonoBehaviour, IInteractable
     [Header("Все для преследования игрока")]
     public Transform player;
     [Tooltip("Радиус обнаружения игрока")]
-    public float viewRadius = 10f;
+    public float viewRadiusByEyes = 10f;
+    public float viewRadiusAround = 3f;
+
     [Tooltip("Угол обзора")]
     public float viewAngle = 120f;
     public LayerMask playerLayer;
@@ -46,36 +48,41 @@ public class NPC_Brain : MonoBehaviour, IInteractable
 
     public bool CanSeePlayer()
     {
+        
         Vector3 directionToPlayer = (player.position - transform.position).normalized;
         float distanceToPlayer = Vector3.Distance(player.position, transform.position);
-
-        if (distanceToPlayer > viewRadius) return false;
+        //Debug.Log(distanceToPlayer);
+        if (viewRadiusAround > distanceToPlayer) return true;
+        if (distanceToPlayer > viewRadiusByEyes) return false;
 
         float angle = Vector3.Angle(transform.forward, directionToPlayer);
         if (angle > viewAngle / 2) return false;
 
-        if (Physics.Raycast(transform.position + Vector3.up, directionToPlayer, out RaycastHit hit, viewRadius, playerLayer | obstacleLayer))
+        if (Physics.Raycast(transform.position + Vector3.up, directionToPlayer, out RaycastHit hit, viewRadiusByEyes, playerLayer | obstacleLayer))
         {
             if (((1 << hit.collider.gameObject.layer) & playerLayer) != 0)
             {
                 return true;
             }
         }
-
         return false;
 
     }
     void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, viewRadius);
+        Gizmos.DrawWireSphere(transform.position, viewRadiusByEyes);
+        
+        
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, viewRadiusAround);
 
         Vector3 viewAngleA = DirFromAngle(-viewAngle / 2);
         Vector3 viewAngleB = DirFromAngle(viewAngle / 2);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewRadius);
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewRadius);
+        Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewRadiusByEyes);
+        Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewRadiusByEyes);
     }
 
     Vector3 DirFromAngle(float angleInDegrees)

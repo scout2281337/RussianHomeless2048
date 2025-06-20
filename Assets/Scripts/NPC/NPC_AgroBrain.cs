@@ -42,18 +42,18 @@ public class NPC_AgroBrain : NPC_Brain
     //    return false;
 
     //}
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, viewRadius);
+    //void OnDrawGizmosSelected()
+    //{
+    //    Gizmos.color = Color.yellow;
+    //    Gizmos.DrawWireSphere(transform.position, viewRadius);
 
-        Vector3 viewAngleA = DirFromAngle(-viewAngle / 2);
-        Vector3 viewAngleB = DirFromAngle(viewAngle / 2);
+    //    Vector3 viewAngleA = DirFromAngle(-viewAngle / 2);
+    //    Vector3 viewAngleB = DirFromAngle(viewAngle / 2);
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewRadius);
-        Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewRadius);
-    }
+    //    Gizmos.color = Color.blue;
+    //    Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewRadius);
+    //    Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewRadius);
+    //}
 
     Vector3 DirFromAngle(float angleInDegrees)
     {
